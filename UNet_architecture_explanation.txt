@@ -27,3 +27,27 @@
 
 ### Final Output:
 - The architecture uses a **sigmoid activation function** at the final layer, indicating that this UNet is designed for **binary segmentation**, where the task is to assign each pixel in the image to one of two classes (e.g., object vs. background).
+
+
+
+-------------------------------------------------------------------------------
+
+
+Here are the customizations:
+
+1. Center Crop for Skip Connections:
+Customization: A method called center_crop() is used to crop the encoder feature maps before concatenation with the upsampled feature maps from the decoder.
+Purpose: This ensures that the feature maps from the encoder and decoder match in size before being concatenated. In some UNet implementations, cropping is necessary due to padding discrepancies during the convolutional operations.
+Standard UNet: Standard UNet implementations often do not need explicit cropping if the input image dimensions are divisible by powers of 2. However, this customization ensures compatibility regardless of input size.
+2. Batch Normalization:
+Customization: Batch normalization layers are added after every convolutional layer.
+Purpose: Batch normalization stabilizes and accelerates the training process by normalizing the outputs of convolutional layers, making the model less sensitive to initialization and learning rate. It also reduces internal covariate shift, improving generalization.
+Standard UNet: In the original UNet architecture, batch normalization is not included. This is a common enhancement for better training stability.
+3. Conv2d with 1x1 Kernel in the Output Layer:
+Customization: The output layer uses a Conv2d layer with a 1x1 kernel to reduce the number of output channels to one (for binary segmentation).
+Purpose: This is typical in segmentation models, but it's explicitly mentioned here as a design choice to ensure pixel-wise classification. The final activation is a sigmoid function to provide probabilities for binary segmentation.
+Standard UNet: The original UNet uses a similar approach, but this ensures compatibility with a wide range of tasks.
+4. Sigmoid Activation in Output:
+Customization: The use of sigmoid activation at the final layer for binary segmentation.
+Purpose: Sigmoid is ideal for binary classification problems, outputting a probability for each pixel belonging to the foreground or background.
+Standard UNet: This is a common choice for binary segmentation, though other activation functions like softmax might be used for multi-class problems.
