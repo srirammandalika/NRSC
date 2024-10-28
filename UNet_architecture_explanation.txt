@@ -1,0 +1,29 @@
+
+### Key Aspects of the Architecture:
+
+1. **Encoder (Downsampling Path)**:
+    - The encoder is composed of four stages (`enc_conv1`, `enc_conv2`, `enc_conv3`, `enc_conv4`), each having two 3x3 convolutional layers followed by a ReLU activation and batch normalization. The number of channels progressively increases as the input is downsampled (64 → 128 → 256 → 512).
+    - Max-pooling (`self.pool`) is applied after each encoder block to reduce the spatial resolution by half.
+
+2. **Decoder (Upsampling Path)**:
+    - The decoder mirrors the encoder but performs the reverse operation—upsampling the feature maps through transposed convolutions (`ConvTranspose2d`).
+    - After each upsampling, the feature maps from the corresponding encoder block are concatenated with the upsampled feature maps (via `torch.cat()`), followed by a convolutional block.
+    - The channels decrease progressively (512 → 256 → 128 → 64), and the feature maps are brought back to the original resolution.
+
+3. **Skip Connections**:
+    - The architecture utilizes **skip connections**, where the feature maps from the encoder at each resolution are concatenated with the upsampled features in the decoder (after cropping them to ensure size compatibility). This helps the network to retain spatial information lost during downsampling.
+
+4. **Output Layer**:
+    - The output layer is a 1x1 convolution (`conv_out`) with a single output channel, followed by a **sigmoid** activation, making this architecture suitable for **binary segmentation** tasks where each pixel is classified as either foreground or background.
+
+### Summary of Layers:
+- **Encoder**: Four blocks of two 3x3 convolution layers with ReLU and batch normalization.
+- **Max Pooling**: Applied after each encoder block to reduce spatial dimensions.
+- **Decoder**: Four blocks of transposed convolutions followed by concatenation with encoder features (skip connections) and additional convolution layers.
+- **Output**: 1x1 convolution to output a single-channel image with a sigmoid activation for binary classification.
+
+### Batch Normalization:
+- This architecture also includes **batch normalization** after every convolutional layer, which helps stabilize and accelerate training by normalizing activations during each batch.
+
+### Final Output:
+- The architecture uses a **sigmoid activation function** at the final layer, indicating that this UNet is designed for **binary segmentation**, where the task is to assign each pixel in the image to one of two classes (e.g., object vs. background).
